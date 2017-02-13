@@ -1,0 +1,226 @@
+1) List all columns and rows in the stock table.
+
+select * from stock;
+
+ -------
+|RESULTS|
+ -------
+
+STOCK_NUM	MANU_CODE	DESCRIPTION	UNIT_PRICE	UNIT	UNIT_DESCR
+1		HRO		baseball gloves	250		case	10 gloves/case
+1		HSK		baseball gloves	800		case	10 gloves/case
+1		SMT		baseball gloves	450		case	10 gloves/case
+2		HRO		baseball	126		case	24/case
+3		HSK		baseball bat	240		case	12/case
+4		HSK		football	960		case	24/case
+4		HRO		football	480		case	24/case
+5		NRG		tennis racquet	28		each	each
+5		SMT		tennis racquet	25		each	each
+5		ANZ		tennis racquet	19.8		each	each
+6		SMT		tennis ball	36		case	24 cans/case
+6		ANZ		tennis balls	48		case	24 cans/case
+7		HRO		basketball	600		case	24/case
+8		ANZ		volleyball	840		case	24/case
+9		ANZ		volleyball net	20		each	each
+--------------------------------------------------------------------------------------------
+
+2) List the last name, first name, and company of all customers (List the columns in that
+	order). Place the list in alphabetical order by company name.
+
+SELECT lname, fname, company
+FROM customer
+ORDER BY CUSTOMER.company ASC
+
+ -------
+|RESULTS|
+ -------
+
+LNAME		FNAME		COMPANY
+Jaeger		Roy		AA athletics
+Pauli		Ludwig		All Sports Supplies
+Ream		Charles		Athletic Supplies
+Baxter		Dick		Blue Ribbon Sports
+Grant		Alfred		Gold Medal Sports
+Sipes		Arnold		Kids Korner
+Vector		Raymond		Los Altos Sports
+Parmelee	Jean		Olympic City
+Currie		Phillip		Phil's Sports
+Higgins		Anthony		Play Ball!
+Quinn		Donald		Quinn's Sports
+Lawson		Margaret	Runners and Others
+Miller		Jane		Sport Stuff
+Albertson	Frank		Sporting Place
+Keyes		Frances		Sports Center
+Sadler		Carole		Sports Spots
+Beatty		Lana		Sportstown
+Watson		George		Watson and Son
+-------------------------------------------------------------------------------------------
+
+3) List the company names for all customers from Sunnyvale, Redwood City, or San Francisco.
+
+SELECT company
+FROM customer
+WHERE
+  (city LIKE '%Sunnyvale' OR
+   city LIKE '%Redwood City' OR
+   city LIKE '%San Francisco')
+
+ -------
+|RESULTS|
+ -------
+
+COMPANY
+All Sports Supplies
+Sports Spots
+Play Ball!
+Quinn's Sports
+Sport Stuff
+AA athletics
+Sports Center
+Sporting Place
+Kids Korner
+---------------------------------------------------------------------------------------
+
+4) List all orders that were placed between the dates 12/31/1999 and 01/03/2000. List
+	order number, order date, customer number, ship date, and paid date. (Hint: 
+	Specify year in single quotes =DD-MMM-YYYY‘).
+
+SELECT order_date, order_num, order_date, customer_num, ship_date, paid_date
+FROM orders
+WHERE order_date BETWEEN '12/31/1999' AND '01/03/2000';
+
+ -------
+|RESULTS|
+ -------
+
+ORDER_DATE	ORDER_NUM	ORDER_DATE	CUSTOMER_NUM	SHIP_DATE	PAID_DATE
+12/31/1999	1010		12/31/1999	115		01/02/2000	01/22/2000
+12/31/1999	1011		12/31/1999	104		01/02/2000	01/13/2000
+12/31/1999	1012		12/31/1999	117		01/05/2000	-
+01/03/2000	1013		01/03/2000	104		01/08/2000	01/17/2000
+12/31/1999	1014		12/31/1999	106		01/04/2000	01/16/2000
+01/03/2000	1015		01/03/2000	110		01/08/2000	01/24/2000
+------------------------------------------------------------------------------------------------
+
+5) List the order number, order date, and shipping charges for all orders that are not on
+	backlog and for which the shipping charge is over $15.00.
+
+SELECT order_num, order_date, ship_charge FROM orders WHERE backlog='n' AND ship_charge > '15';
+
+ORDER_NUM	ORDER_DATE	SHIP_CHARGE
+1002		12/20/1999	15.3
+1005		12/30/1999	16.2
+1007		12/30/1999	25.2
+------------------------------------------------------------------------------------------------------
+
+6) List all stock items which are baseball items which have a unit price greater than $200.00 
+	and a manufacturer code which starts with'H'. (Hint: use LIKE)
+
+SELECT * FROM stock WHERE description LIKE '%baseball%' AND unit_price>'200' AND manu_code LIKE 'H%';
+
+ -------
+|RESULTS|
+ -------
+
+STOCK_NUM	MANU_CODE	DESCRIPTION	UNIT_PRICE	UNIT	UNIT_DESCR
+1		HRO		baseball gloves	250		case	10 gloves/case
+1		HSK		baseball gloves	800		case	10 gloves/case
+3		HSK		baseball bat	240		case	12/case
+------------------------------------------------------------------------------------------------------
+
+7) List the company name for all customers who have orders. Do not list a company more than once.
+
+SELECT UNIQUE company FROM customer
+INNER JOIN orders
+  ON orders.CUSTOMER_NUM=customer.CUSTOMER_NUM;
+
+ -------
+|RESULTS|
+ -------
+
+COMPANY
+AA athletics
+Olympic City
+Runners and Others
+All Sports Supplies
+Watson and Son
+Gold Medal Sports
+Sports Center
+Kids Korner
+Play Ball!
+------------------------------------------------------------------------------------------------------
+
+8) List the customer number and the description (from the stock table) of all items
+	ordered by customers with customer numbers 104 – 108. Order the output by
+	customer number and description. (There should be no duplicate rows in your output).
+
+SELECT UNIQUE customer.CUSTOMER_NUM, stock.DESCRIPTION
+FROM customer
+INNER JOIN orders
+  ON orders.CUSTOMER_NUM=customer.CUSTOMER_NUM
+INNER JOIN items
+  ON items.ORDER_NUM=orders.ORDER_NUM
+INNER JOIN stock
+  ON stock.STOCK_NUM=items.STOCK_NUM
+WHERE customer.customer_num BETWEEN '104' AND '108'
+ORDER BY customer.customer_num, stock.description;
+
+ -------
+|RESULTS|
+ -------
+
+CUSTOMER_NUM	DESCRIPTION
+104	baseball gloves
+104	tennis ball
+104	tennis balls
+104	tennis racquet
+104	volleyball
+104	volleyball net
+106	baseball
+106	baseball bat
+106	baseball gloves
+106	football
+------------------------------------------------------------------------------------------------------
+
+9) List the number of (distinct) customers having an order. Label the column 
+	?Total_Customers_with_Orders?.
+
+SELECT COUNT(DISTINCT customer.CUSTOMER_NUM) AS "Total_Customers_with_Orders"
+FROM customer, orders
+WHERE orders.CUSTOMER_NUM=customer.CUSTOMER_NUM
+ORDER BY customer.CUSTOMER_NUM;
+
+ -------
+|RESULTS|
+ -------
+
+Total_Customers_with_Orders
+9
+------------------------------------------------------------------------------------------------------
+
+10) For each customer having an order, list the customer number, the number of orders
+	that customer has, the total quantity of items on those orders, and the total price for
+	the items. Order the output by customer number. (Hint: You must use a GROUP BY
+	clause in this query).
+
+SELECT orders.customer_num, COUNT(DISTINCT orders.order_num) "Num Orders", 
+SUM(items.quantity) as "Total Quantity", SUM(items.total_price) as "Total Amount"
+FROM orders, items
+WHERE orders.order_num = items.order_num
+GROUP BY orders.customer_num
+ORDER BY orders.customer_num;
+
+ -------
+|RESULTS|
+ -------
+
+CUSTOMER_NUM	Num Orders	Total Quantity	Total Amount
+101		1		2		1200
+104		4		18		1451.8
+106		2		6		3566
+110		2		7		1390
+111		1		1		450
+112		1		17		498
+115		1		2		84
+116		1		22		562
+117		2		16		2736
